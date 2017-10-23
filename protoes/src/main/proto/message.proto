@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package coinche_protocol;
+
+option java_package = "eu.epitech.jcoinche";
+option java_outer_classname = "CoincheProtocol";
+
+message Bid {
+    enum Call {
+        PASS = 0;
+        NORMAL = 1;
+        CAPOT = 2;
+        GENERAL = 3;
+        COINCHE = 4;
+        SURCOINCHE = 5;
+        BAD_CALL = 6;
+    }
+    enum Mode {
+        COLOR = 0;
+        NOTRUMP = 1;
+        ALLTRUMP = 2;
+        BAD_MODE = 3;
+    }
+    string name = 1;
+    int32 id = 5;
+    int32 amount = 2;
+    Card.Color trumpColor = 3;
+    Call call = 4;
+}
+
+message Card {
+    enum Color {
+        HEART = 0;
+        SPADES = 1;
+        CLUBS = 2;
+        DIAMONDS = 3;
+        BAD_COLOR = 4;
+    }
+    enum Rank {
+        SEVEN = 0;
+        EIGHT = 1;
+        NINE = 2;
+        JACK = 3;
+        QUEEN = 4;
+        KING = 5;
+        TEN = 6;
+        AS = 7;
+        BAD_RANK = 8;
+    }
+    Color color = 1;
+    Rank rank = 2;
+    bool trump = 3;
+    int32 id = 4;
+    string name = 5;
+}
+
+message Hand {
+    repeated Card card = 1;
+}
+
+message End {
+    string namePlay1 = 1;
+    string namePlay2 = 2;
+    int32 currentScore = 3;
+    int32 totalScore = 4;
+}
+
+message Info {
+    enum Type {
+        NOINFO = 0;
+        STATE = 1;
+        BID = 2;
+        CARD = 3;
+        HAND = 4;
+        END = 5;
+        ROUND = 6;
+        LEAVER = 7;
+        TRICK = 8;
+        NEWPLAYER = 9;
+        AUCTIONWINNER = 10;
+        BAD_INFO = 11;
+    }
+    enum State {
+        NOSTATE = 0;
+        WAITING = 1;
+        GIVING = 2;
+        BIDDING = 3;
+        PLAYING = 4;
+        ENDING = 5;
+        BAD_STATE = 6;
+    }
+    Type type = 6;
+    oneof field {
+        State state = 1;
+        Bid bid = 2;
+        Card card = 3;
+        Hand hand = 4;
+        End end = 5;
+        string leaver = 7;
+        string trick = 8;
+        string newPlayer = 9;
+        string AuctionWinner = 10;
+    }
+}
+
+message Answer {
+    Message.Request type = 1;
+    oneof field {
+        string name = 2;
+        Bid bid = 3;
+        Card card = 4;
+    }
+}
+
+message Message {
+    enum Type {
+        NOTYPE = 0;
+        REQUEST = 1;
+        ANSWER = 2;
+        INFO = 3;
+        VALIDATION = 4;
+        LEAVE = 5;
+        BAD_TYPE = 6;
+    }
+    enum Request {
+        NOREQUEST = 0;
+        NAME = 1;
+        BID = 2;
+        CARD = 3;
+        QUIT = 4;
+        BAD_REQUEST = 5;
+    }
+
+    Type type = 1;
+    oneof field {
+        Request request = 2;
+        Answer answer = 3;
+        Info info = 4;
+        bool ok = 5;
+    }
+    string description = 6;
+    int32 id = 7;
+}
