@@ -22,7 +22,7 @@ public class Translator {
         return BaseCard.Rank.values()[rank.ordinal()];
     }
 
-    static public Card translateCard(BaseCard card, Player p) {
+    static Card translateCard(BaseCard card, Player p) {
         return Card.newBuilder()
                 .setColor(translateColor(card.getColor()))
                 .setRank(translateRank(card.getRank()))
@@ -42,7 +42,7 @@ public class Translator {
         return c;
     }
 
-    static public Message buildHand(ArrayList<Card> hand, String details) {
+    static Message buildHand(ArrayList<Card> hand, String details) {
         return Message.newBuilder()
                 .setType(Message.Type.INFO)
                 .setInfo(Info.newBuilder()
@@ -84,7 +84,7 @@ public class Translator {
     }
 
     static public Message buildBid(String name, Player.PlayerId id, String bid, int amount, String color) {
-        ArrayList<String> call = new ArrayList<String>() {{
+        ArrayList<String> call = new ArrayList<>() {{
             add("Pass");
             add("Normal");
             add("Capot");
@@ -92,7 +92,7 @@ public class Translator {
             add("Coinche");
             add("Surcoinche");
         }};
-        ArrayList<String> col = new ArrayList<String>() {{
+        ArrayList<String> col = new ArrayList<>() {{
             add("H");
             add("S");
             add("C");
@@ -109,7 +109,6 @@ public class Translator {
             callIdx = 1;
         if (colorIdx == -1)
             colorIdx = 4;
-        Logger.info("Color idx = {}", colorIdx);
         return Message.newBuilder()
                 .setType(Message.Type.ANSWER)
                 .setAnswer(Answer.newBuilder()
@@ -126,7 +125,6 @@ public class Translator {
     }
 
     static public Message buildCardRequested(Player p, BaseCard card) {
-        Logger.info("player build the card {}", p);
         return Message.newBuilder()
                 .setType(Message.Type.ANSWER)
                 .setAnswer(Answer.newBuilder()
@@ -165,14 +163,13 @@ public class Translator {
     }
 
     static public Message buildBidRequest() {
-        Logger.info("Sending Bid request");
         return Message.newBuilder()
                 .setType(Message.Type.REQUEST)
                 .setRequest(Message.Request.BID)
                 .build();
     }
 
-    static public Message buildStateChangeInfo(Info.State state)
+    static Message buildStateChangeInfo(Info.State state)
     {
         return Message.newBuilder()
                 .setType(Message.Type.INFO)

@@ -55,7 +55,7 @@ public class CoincheClient
             }
         }
         else {
-            System.out.print("Usage : name.jar [IP_ADRESS] [IP_PORT]");
+            System.out.print("Usage : name.jar [IP_ADDRESS] [PORT]");
         }
     }
 }

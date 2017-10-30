@@ -15,10 +15,6 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
     private Table table = new Table();
     private String mLastBid;
 
-
-    /* private Boolean connected = false;
-    private Message.Request lastAnswerToValidate = Message.Request.NOREQUEST;
-    */
     private void sendBid(ChannelHandlerContext channelHandlerContext) throws Exception {
         String elBid = mPlay.bid(mLastBid);
         if (elBid.equals("Coinche") || elBid.equals("Surcoinche")) {
@@ -50,7 +46,7 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
     private void sendName(ChannelHandlerContext channelHandlerContext) throws Exception {
         String name;
         do {
-            System.out.print("Please enter your name : ");
+            System.out.print("Please, enter your name : ");
             Scanner scan = new Scanner(System.in);
             name = scan.nextLine();
         } while (name.equals(""));
@@ -62,11 +58,14 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
     private void treatRequest(ChannelHandlerContext channelHandlerContext, Message.Request req) throws Exception {
         switch (req) {
             case BID:
-                sendBid(channelHandlerContext); break;
+                sendBid(channelHandlerContext);
+                break;
             case CARD:
-                sendCard(channelHandlerContext); break;
+                sendCard(channelHandlerContext);
+                break;
             case NAME:
-                sendName(channelHandlerContext); break;
+                sendName(channelHandlerContext);
+                break;
             case QUIT:
                 channelHandlerContext.writeAndFlush(Translator.buildQuitConfirmation());
                 channelHandlerContext.close();
@@ -78,7 +77,8 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
     {
         switch (state) {
             case ENDING:
-                System.out.println("End of the game"); break;
+                System.out.println("End of the game");
+                break;
             case GIVING:
                 System.out.println("Begin the distribution");
                 table.endGame();
@@ -86,11 +86,14 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
                 break;
             case BIDDING:
                 mPlay.showHand();
-                System.out.println("It's time to BID"); break;
+                System.out.println("It's time to BID");
+                break;
             case PLAYING:
-                System.out.println("Run just started"); break;
+                System.out.println("Run just started");
+                break;
             case WAITING:
-                System.out.println("Waiting other player to connect"); break;
+                System.out.println("Waiting other player to connect");
+                break;
         }
     }
 
@@ -219,9 +222,9 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
                 giveCard(info.getHand()); break;
             case TRICK:
                 table.clearTable();
-                System.out.println(info.getTrick() + " has won this trick !"); break;
+                System.out.println(info.getTrick() + " has won the trick !"); break;
             case LEAVER:
-                System.out.println(info.getLeaver() + " has left the game.."); break;
+                System.out.println(info.getLeaver() + " has left the game..."); break;
             case ROUND:
                 System.out.println("End of the round. " + info.getEnd().getNamePlay1() + " and " + info.getEnd().getNamePlay2() +
                         " won with : " + info.getEnd().getCurrentScore() + " points !");
@@ -238,7 +241,7 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
                 System.out.println("A new player; " + info.getNewPlayer() + " has just joined the game !"); break;
             case AUCTIONWINNER:
                 mPlay.transformToTrump(info.getBid().getTrumpColor());
-                System.out.println(info.getBid().getName() + " has won the bid turn !"); break;
+                System.out.println(info.getBid().getName() + " has won the auction !"); break;
         }
     }
 
@@ -263,8 +266,8 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext context, Throwable cause) throws Exception {
-        //cause.printStackTrace();
-        Logger.info(cause.getMessage());
+        Logger.error(cause.getMessage());
+        Logger.debug(cause);
         context.close();
     }
 }
