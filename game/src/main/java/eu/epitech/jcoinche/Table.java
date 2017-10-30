@@ -134,8 +134,7 @@ public class Table {
     }
 
     public void showTable() {
-        System.out.println("\nTable STATE :\n\n");
-        System.out.print("card count : " + mCardPlayed.size() + " | ");
+        System.out.println("\nTable STATE :\n");
         for (BaseCard card : mCardPlayed) {
             System.out.print(card.toString() + " | ");
         }

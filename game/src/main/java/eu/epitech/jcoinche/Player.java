@@ -72,7 +72,6 @@ public class Player {
 
     public void showHand() {
         System.out.println("This is your hand : ");
-        System.out.println("count : " + mHand.size());
         for (BaseCard card : mHand) {
             System.out.print(card.toString() + " ");
         }
@@ -203,7 +202,7 @@ public class Player {
                     System.out.println(mAdvice);
                     mAdvice = "";
                 }
-                System.out.println("Please select a valid card: ");
+                System.out.print("Please select a valid card: ");
             }
             pass = true;
             Scanner scan = new Scanner(System.in);
