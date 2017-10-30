@@ -12,8 +12,11 @@ public class Dealer {
     private Deck deck = new Deck();
     private int gameCount = 0;
 
+    public int getPlayerCount() {
+        return players.size();
+    }
+
     public boolean isTableFull() {
-        Logger.info("table size : {}", players.size());
         return players.size() == 4;
     }
 
@@ -84,7 +87,7 @@ public class Dealer {
         for (Player p : players)
         {
             if (p.getmPlayerId() != not)
-                p.getCtx().writeAndFlush(msg);
+                p.listen(msg);
         }
     }
 
@@ -160,13 +163,21 @@ public class Dealer {
         }
     }
 
+    public void closeAllPlayerExcept() {
+        closeAllPlayerExcept(null);
+    }
+
+    public void closeAllPlayerExcept(Player p) {
+        for (Player player : players) {
+            if (p == null || player.getmPlayerId() != p.getmPlayerId())
+                player.close();
+        }
+    }
+
     public void hardReset() {
         try {
             deck.reset();
-            for (Player p : players)
-            {
-                p.reset();
-            }
+            players.clear();
         } catch (Exception ignored) {
         }
     }

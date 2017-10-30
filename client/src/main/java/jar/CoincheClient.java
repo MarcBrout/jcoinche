@@ -1,9 +1,6 @@
 package jar;
 
-import eu.epitech.jcoinche.BaseCard;
-import eu.epitech.jcoinche.CoincheProtocol;
 import eu.epitech.jcoinche.CoincheProtocol.Message;
-import eu.epitech.jcoinche.Translator;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -13,13 +10,6 @@ import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
-import org.pmw.tinylog.Configurator;
-import org.pmw.tinylog.Level;
-import org.pmw.tinylog.writers.ConsoleWriter;
-import org.pmw.tinylog.writers.FileWriter;
-
-import java.io.IOException;
-
 
 /**
  * Hello world!
@@ -31,12 +21,6 @@ public class CoincheClient
     {
         if (args.length == 2)
         {
-            Configurator.defaultConfig()
-                    .writer(new FileWriter("logClient.txt"))
-                    .addWriter(new ConsoleWriter())
-                    .level(Level.ERROR)
-                    .activate();
-
             String host = args[0];
             int port = Integer.parseInt(args[1]);
             EventLoopGroup workers = new NioEventLoopGroup();

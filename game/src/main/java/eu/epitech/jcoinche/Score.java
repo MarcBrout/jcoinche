@@ -6,7 +6,7 @@ public class Score {
     private Team mTeam1;
     private Team mTeam2;
     private Bid bestBid = null;
-    private int mMult;
+    private int mMult = 1;
 
     public Bid getBestBidder() {
         return bestBid;
@@ -65,6 +65,8 @@ public class Score {
         }
         mTeam1.reset();
         mTeam2.reset();
+        bestBid = null;
+        mMult = 1;
     }
 
     public void reset()

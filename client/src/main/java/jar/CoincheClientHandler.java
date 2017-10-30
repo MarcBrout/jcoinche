@@ -22,17 +22,20 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
     private void sendBid(ChannelHandlerContext channelHandlerContext) throws Exception {
         String elBid = mPlay.bid(mLastBid);
         if (elBid.equals("Coinche") || elBid.equals("Surcoinche")) {
-            channelHandlerContext.writeAndFlush(Translator.buildBid(mUserName, mPlay.getmPlayerId(), elBid, 0, ""));
+            if (channelHandlerContext.channel().isOpen())
+                channelHandlerContext.writeAndFlush(Translator.buildBid(mUserName, mPlay.getmPlayerId(), elBid, 0, ""));
             return;
         }
         String color = elBid.substring(elBid.length() - 1);
         if (elBid.substring(0, elBid.length()).equals("Pass") ||
             elBid.substring(0, elBid.length()).equals("Capot") ||
             elBid.substring(0, elBid.length()).equals("General")) {
-            channelHandlerContext.writeAndFlush(Translator.buildBid(mUserName, mPlay.getmPlayerId(), elBid.substring(0, elBid.length()), 0, color));
+            if (channelHandlerContext.channel().isOpen())
+                channelHandlerContext.writeAndFlush(Translator.buildBid(mUserName, mPlay.getmPlayerId(), elBid.substring(0, elBid.length()), 0, color));
             return;
         }
-        channelHandlerContext.writeAndFlush(Translator.buildBid(mUserName, mPlay.getmPlayerId(),elBid.substring(0, elBid.length() - 1), Integer.valueOf(elBid.substring(0, elBid.length() - 1)), color));
+        if (channelHandlerContext.channel().isOpen())
+            channelHandlerContext.writeAndFlush(Translator.buildBid(mUserName, mPlay.getmPlayerId(),elBid.substring(0, elBid.length() - 1), Integer.valueOf(elBid.substring(0, elBid.length() - 1)), color));
     }
 
     private void sendCard(ChannelHandlerContext channelHandlerContext) throws Exception {
@@ -40,7 +43,8 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
         table.showTable();
         BaseCard card = mPlay.play(table);
         table.putCardTable(card);
-        channelHandlerContext.writeAndFlush(Translator.buildCardRequested(mPlay, card));
+        if (channelHandlerContext.channel().isOpen())
+            channelHandlerContext.writeAndFlush(Translator.buildCardRequested(mPlay, card));
     }
 
     private void sendName(ChannelHandlerContext channelHandlerContext) throws Exception {
@@ -51,7 +55,8 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
             name = scan.nextLine();
         } while (name.equals(""));
         mUserName = name;
-        channelHandlerContext.writeAndFlush(Translator.buildName(mUserName));
+        if (channelHandlerContext.channel().isOpen())
+            channelHandlerContext.writeAndFlush(Translator.buildName(mUserName));
     }
 
     private void treatRequest(ChannelHandlerContext channelHandlerContext, Message.Request req) throws Exception {
@@ -76,7 +81,9 @@ public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
                 System.out.println("End of the game"); break;
             case GIVING:
                 System.out.println("Begin the distribution");
-                table.endGame(); break;
+                table.endGame();
+                mPlay.reset();
+                break;
             case BIDDING:
                 mPlay.showHand();
                 System.out.println("It's time to BID"); break;
