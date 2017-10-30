@@ -33,6 +33,7 @@ public class Player {
     private PlayerId mPlayerId = PlayerId.NB_PLAYER;
     private String mName;
     private ChannelHandlerContext ctx;
+    private String mAdvice = "";
 
     public void reset() {
         coinchePossible = false;
@@ -83,7 +84,6 @@ public class Player {
 
     public void showHand() {
         System.out.println("This is your hand : ");
-        System.out.println("count : " + mHand.size());
         for (BaseCard card : mHand) {
             System.out.print(card.toString() + " ");
         }
@@ -121,7 +121,10 @@ public class Player {
         for (BaseCard card:
              mHand) {
             if (card.isTrump())
+            {
+                mAdvice = "You should play " + card.toString() + " instead ..";
                 return true;
+            }
         }
         return false;
     }
@@ -141,7 +144,10 @@ public class Player {
         for (BaseCard card:
              mHand) {
             if (card.isTrump() && card.getValue() > value)
+            {
+                mAdvice = "You should play " + card.toString() + " instead ..";
                 return true;
+            }
         }
         return false;
     }
@@ -151,17 +157,17 @@ public class Player {
         for (BaseCard card:
              mHand) {
             if (card.getColor() == color)
+            {
+                mAdvice = "You should play " + card.toString() + " instead ..";
                 return true;
+            }
         }
         return false;
     }
 
     private boolean testTrump(Table table) throws Exception {
         if (!mHand.get(mIdxCard).isTrump()) {
-            if (handHasTrump())
-                return false;
-            else
-                return true;
+            return !handHasTrump();
         }
         else {
             if (table.ismTrumpPlayed())
@@ -188,9 +194,7 @@ public class Player {
         else {
             BaseCard.Color firstColor = table.getFirstColor();
             if (mHand.get(mIdxCard).getColor() != firstColor) {
-                if (hasSameColorInHand(firstColor))
-                    return false;
-                return testTrump(table);
+                return !hasSameColorInHand(firstColor) && testTrump(table);
             }
             else
                 return true;
@@ -203,8 +207,15 @@ public class Player {
         System.out.print("Please, select a card to play: ");
         String text;
         do {
-            if (pass)
-                System.out.print("\nError: You can't play this card.\nPlease select a valid card: ");
+            if (pass) {
+                System.out.println("\nError: You can't play this card.");
+                if (!mAdvice.equals(""))
+                {
+                    System.out.println(mAdvice);
+                    mAdvice = "";
+                }
+                System.out.print("Please select a valid card: ");
+            }
             pass = true;
             Scanner scan = new Scanner(System.in);
             text = scan.nextLine();
