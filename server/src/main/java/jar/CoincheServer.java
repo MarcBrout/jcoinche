@@ -1,10 +1,6 @@
 package jar;
 
-import eu.epitech.jcoinche.BaseCard;
-import eu.epitech.jcoinche.CoincheProtocol;
 import eu.epitech.jcoinche.CoincheProtocol.Message;
-import eu.epitech.jcoinche.Player;
-import eu.epitech.jcoinche.Translator;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -17,11 +13,7 @@ import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
-import org.pmw.tinylog.Configurator;
-import org.pmw.tinylog.Level;
 import org.pmw.tinylog.Logger;
-import org.pmw.tinylog.writers.ConsoleWriter;
-import org.pmw.tinylog.writers.FileWriter;
 
 /**
  * Main Class
@@ -78,12 +70,6 @@ public class CoincheServer
     public static void main(String[] args)
     {
         int port = 8080;
-
-        Configurator.defaultConfig()
-                .writer(new FileWriter("logServer.txt"))
-                .addWriter(new ConsoleWriter())
-                .level(Level.ERROR)
-                .activate();
 
         if (args.length > 0)
         {

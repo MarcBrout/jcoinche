@@ -5,7 +5,6 @@ import eu.epitech.jcoinche.CoincheProtocol.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.pmw.tinylog.Logger;
-import sun.rmi.runtime.Log;
 
 public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
 
@@ -31,12 +30,14 @@ public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
     }
 
     private void resolvePlayerLeaving(ChannelHandlerContext ctx) {
-        notifyPlayerLeft(dealer.getPlayer(ctx));
+        Player p = dealer.getPlayer(ctx);
+
+        Logger.info("Player '{}' left, resetting server state", p.getmName());
+        dealer.sendMessageToEveryone(Translator.buildLeaverMessage(p), p.getmPlayerId());
         dealer.sendMessageToEveryone(Translator.buildQuitRequest());
-        dealer.hardReset();
+        dealer.closeAllPlayerExcept(p);
+        resetGame(true);
         dealer.goToState(Info.State.WAITING);
-        score.reset();
-        id++;
     }
 
     // Called once when a connection succeeded
@@ -55,10 +56,12 @@ public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
     public void exceptionCaught(ChannelHandlerContext context, Throwable cause) throws Exception {
         Player p = dealer.getPlayer(context);
 
+        Logger.info("Player '{}' had connexion trouble", p.getmName());
         dealer.sendMessageToEveryone(Translator.buildLeaverMessage(p), p.getmPlayerId());
         dealer.sendMessageToEveryone(Translator.buildQuitRequest());
-        score.reset();
-        dealer.hardReset();
+
+        resetGame(true);
+
         p.getCtx().channel().closeFuture();
         Logger.info(cause.getMessage());
     }
@@ -79,69 +82,127 @@ public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
     private void sendBidToPlayers(Bid bid, ChannelHandlerContext ctx) {
         Player p = dealer.getPlayer(ctx);
 
-        dealer.sendMessageToEveryone(Translator.buildBidMessage(bid, p), p.getmPlayerId());
-        switch (bid.getCall()) {
-            case PASS: processPassCall(bid);
-                break;
-            case NORMAL: processNormalCall(bid);
-                break;
-            case CAPOT: processNormalCall(bid);
-                break;
-            case GENERAL: processNormalCall(bid);
-                break;
-            case COINCHE: processNormalCall(bid);
-                break;
-            case SURCOINCHE: processSurCoincheCall(bid);
-                break;
+        if (p != null) {
+            dealer.sendMessageToEveryone(Translator.buildBidMessage(bid, p), p.getmPlayerId());
+            switch (bid.getCall()) {
+                case PASS:
+                    processPassCall(bid);
+                    break;
+                case NORMAL:
+                    processNormalCall(bid);
+                    break;
+                case CAPOT:
+                    processNormalCall(bid);
+                    break;
+                case GENERAL:
+                    processNormalCall(bid);
+                    break;
+                case COINCHE:
+                    processNormalCall(bid);
+                    break;
+                case SURCOINCHE:
+                    processSurCoincheCall(bid);
+                    break;
+            }
         }
     }
 
-    private void launchGame(Player p) {
+    private void launchGame(Player p, Bid bid) {
+        Logger.info("Launching game, first player '{}'.", p.getmName());
+        if (score.isInTeamOne(p.getmPlayerId()))
+            team1.teamHasBid();
+        else
+            team2.teamHasBid();
+
+        Player belotter = dealer.findBelotteEtRe(Translator.translateColor(bid.getTrumpColor()));
+
+        if (belotter != null) {
+            if (score.isInTeamOne(belotter.getmPlayerId())) {
+                team1.teamHasBeAndRe();
+            } else {
+                team2.teamHasBeAndRe();
+            }
+        }
+
         dealer.sendMessageToEveryone(Translator.buildAuctionWinner(p, score));
         dealer.goToState(Info.State.PLAYING);
-        dealer.sendMessageTo(Translator.buildCardRequest(),
-                dealer.getPlayerById(Player.PlayerId.values()[id % 4]));
+        dealer.sendMessageTo(Translator.buildCardRequest(), dealer.getPlayerById(Player.PlayerId.values()[id % 4]));
         bidCounter = 0;
     }
 
     private void processSurCoincheCall(Bid bid) {
-        launchGame(dealer.getPlayer(bid.getName()));
+        Logger.info("Player '{}' is announcing {} at {} color",
+                bid.getName(), bid.getAmount(), bid.getTrumpColor().name());
+        launchGame(dealer.getPlayer(bid.getName()), bid);
         bidCounter = 0;
     }
 
     private void processNormalCall(Bid bid) {
+        Logger.info("Player '{}' is announcing '{}'", bid.getName(), bid.getAmount());
         if (bid.getCall() != Bid.Call.COINCHE)
             score.setBestBidder(bid);
         dealer.sendMessageTo(Translator.buildBidRequest(),
-                dealer.getPlayerById(Player.PlayerId.values()[(bid.getId() + 1) % 4]));
+                dealer.getPlayerById(getNextPlayer(bid)));
         bidCounter = 0;
+    }
+
+    private void resetGame(boolean fullReset) {
+        if (fullReset) {
+            Logger.debug("Doing full game reset");
+            score.reset();
+            dealer.hardReset();
+            id = 0;
+            bidCounter = 0;
+        } else {
+            Logger.debug("Doing partial game reset");
+            dealer.reset();
+        }
+    }
+
+    private void relaunchNewGame() {
+        Logger.info("Relaunching the game");
+        resetGame(false);
+        dealer.goToState(Info.State.GIVING);
+        dealer.cutDeck();
+        dealer.distribute();
+        dealer.goToState(Info.State.BIDDING);
+        bidCounter = 0;
+    }
+
+    private Player.PlayerId getNextPlayer(Bid bid) {
+        return Player.PlayerId.values()[(bid.getId() + 1) % 4];
+    }
+
+    private Player.PlayerId getFirstPlayer(Bid bid) {
+        return Player.PlayerId.values()[(Player.PlayerId.PLAYER_ONE.ordinal() + id) % 4];
     }
 
     private void processPassCall(Bid bid)
     {
+        Logger.info("Player '{}' is passing.", bid.getName());
         if (bidCounter > 0) {
             Bid bidWinner = score.getBestBidder();
-            Player p = dealer.getPlayer(bidWinner.getName());
-            ++bidCounter;
 
-            if (bidCounter == 3 && bidWinner != null) {
-                launchGame(p);
-            } else if (bidCounter == 4) {
-                dealer.goToState(Info.State.GIVING);
-                dealer.reset();
-                dealer.cutDeck();
-                dealer.distribute();
-                dealer.goToState(Info.State.BIDDING);
-                dealer.sendMessageTo(Translator.buildBidRequest(),
-                        dealer.getPlayerById(Player.PlayerId.PLAYER_ONE));
-                bidCounter = 0;
+            if (bidWinner != null) {
+                Player p = dealer.getPlayer(bidWinner.getName());
+                ++bidCounter;
+
+                if (bidCounter == 3) {
+                    Logger.info("Player '{}' has won the bid !", p.getmName());
+                    launchGame(p, bid);
+                } else {
+                    dealer.sendMessageTo(Translator.buildBidRequest(), dealer.getPlayerById(getNextPlayer(bid)));
+                }
+            } else if (bidCounter == 3) {
+                Logger.info("4 pass in a row");
+                relaunchNewGame();
+                dealer.sendMessageTo(Translator.buildBidRequest(), dealer.getPlayerById(getFirstPlayer(bid)));
             } else {
-                dealer.sendMessageTo(Translator.buildBidRequest(),
-                        dealer.getPlayerById(Player.PlayerId.values()[(bid.getId() + 1) % 4]));
+                dealer.sendMessageTo(Translator.buildBidRequest(), dealer.getPlayerById(getNextPlayer(bid)));
+                ++bidCounter;
             }
         } else {
-            dealer.sendMessageTo(Translator.buildBidRequest(),
-                    dealer.getPlayerById(Player.PlayerId.values()[(bid.getId() + 1) % 4]));
+            dealer.sendMessageTo(Translator.buildBidRequest(), dealer.getPlayerById(getNextPlayer(bid)));
             ++bidCounter;
         }
     }
@@ -155,9 +216,7 @@ public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
     }
 
     private Team returnWinningTeam() {
-        if (team1.getCurrentScore() > team2.getCurrentScore())
-            return team1;
-        return team2;
+        return team1.getCurrentScore() > team2.getCurrentScore() ? team1 : team2;
     }
 
     private void checkCardPlayed(Card card, ChannelHandlerContext ctx) {
@@ -183,8 +242,9 @@ public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
                     if (endGame()) {
                         dealer.sendMessageToEveryone(Translator.buildEndGame(returnWinningTeam(), dealer));
                         dealer.sendMessageToEveryone(Translator.buildQuitRequest());
-                        score.reset();
-                        dealer.hardReset();
+                        dealer.closeAllPlayerExcept();
+                        dealer.goToState(Info.State.WAITING);
+                        resetGame(true);
                     } else {
                         table.endGame();
                         dealer.goToState(Info.State.GIVING);
@@ -217,7 +277,8 @@ public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
             dealer.sendMessageTo(Translator.buildValidation(false,p.getmPlayerId().ordinal(), p.getmName()), p);
             return;
         }
-        Logger.info("New player {} joined the table", p.getmName());
+        Logger.info("New player {} joined the table. waiting for {} more player(s)",
+                p.getmName(), 4 - dealer.getPlayerCount());
         dealer.sendMessageTo(Translator.buildValidation(true, p.getmPlayerId().ordinal(), p.getmName()), p);
         dealer.sendMessageToEveryone(Translator.buildNewPlayer(p), p.getmPlayerId());
         if (dealer.isTableFull()) {
@@ -230,14 +291,5 @@ public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
             dealer.goToState(Info.State.WAITING);
         }
         ++id;
-    }
-
-    private void notifyPlayerLeft(Player p)
-    {
-        dealer.sendMessageToEveryone(Translator.buildLeaverMessage(p), p.getmPlayerId());
-        dealer.sendMessageToEveryone(Translator.buildQuitRequest());
-        score.reset();
-        dealer.hardReset();
-        p.getCtx().channel().closeFuture();
     }
 }

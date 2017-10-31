@@ -1,5 +1,6 @@
 package eu.epitech.jcoinche;
 import com.google.protobuf.Int32Value;
+import com.google.protobuf.Message;
 import io.netty.channel.ChannelHandlerContext;
 import org.pmw.tinylog.Logger;
 
@@ -38,6 +39,33 @@ public class Player {
         coinchePossible = false;
         surCoinchePossible = false;
         mHand.clear();
+    }
+    public void close() {
+        if (ctx != null) {
+            ctx.channel().closeFuture();
+            ctx = null;
+        }
+    }
+
+    public void listen(Message msg) {
+        if (ctx != null)
+            ctx.writeAndFlush(msg);
+    }
+
+    public boolean hasBelotteEtRe(BaseCard.Color color) {
+        boolean kingOrQueen = false;
+
+        for (BaseCard c : mHand) {
+            if (c.getColor() == color &&
+                    (c.getRank() == BaseCard.Rank.KING ||
+                            c.getRank() == BaseCard.Rank.QUEEN)) {
+                if (!kingOrQueen)
+                    kingOrQueen = true;
+                else
+                    return true;
+            }
+        }
+        return false;
     }
 
     public String getBid() {
