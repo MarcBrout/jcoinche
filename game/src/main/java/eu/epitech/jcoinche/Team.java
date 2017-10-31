@@ -24,7 +24,7 @@ public class Team {
         return mPlayerTwo;
     }
 
-    void teamHasBid() {
+    public void teamHasBid() {
         mIsBidding = true;
     }
 

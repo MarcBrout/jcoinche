@@ -146,6 +146,14 @@ public class Dealer {
         return null;
     }
 
+    public Player findBelotteEtRe(BaseCard.Color color) {
+        for (Player p : players) {
+            if (p.hasBelotteEtRe(color))
+                return p;
+        }
+        return null;
+    }
+
     public Player getPlayer(String name)
     {
         for (Player p : players)

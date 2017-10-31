@@ -107,19 +107,33 @@ public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
         }
     }
 
-    private void launchGame(Player p) {
+    private void launchGame(Player p, Bid bid) {
         Logger.info("Launching game, first player '{}'.", p.getmName());
+        if (score.isInTeamOne(p.getmPlayerId()))
+            team1.teamHasBid();
+        else
+            team2.teamHasBid();
+
+        Player belotter = dealer.findBelotteEtRe(Translator.translateColor(bid.getTrumpColor()));
+
+        if (belotter != null) {
+            if (score.isInTeamOne(belotter.getmPlayerId())) {
+                team1.teamHasBeAndRe();
+            } else {
+                team2.teamHasBeAndRe();
+            }
+        }
+
         dealer.sendMessageToEveryone(Translator.buildAuctionWinner(p, score));
         dealer.goToState(Info.State.PLAYING);
-        dealer.sendMessageTo(Translator.buildCardRequest(),
-                dealer.getPlayerById(Player.PlayerId.values()[id % 4]));
+        dealer.sendMessageTo(Translator.buildCardRequest(), dealer.getPlayerById(Player.PlayerId.values()[id % 4]));
         bidCounter = 0;
     }
 
     private void processSurCoincheCall(Bid bid) {
         Logger.info("Player '{}' is announcing {} at {} color",
                 bid.getName(), bid.getAmount(), bid.getTrumpColor().name());
-        launchGame(dealer.getPlayer(bid.getName()));
+        launchGame(dealer.getPlayer(bid.getName()), bid);
         bidCounter = 0;
     }
 
@@ -175,7 +189,7 @@ public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
 
                 if (bidCounter == 3) {
                     Logger.info("Player '{}' has won the bid !", p.getmName());
-                    launchGame(p);
+                    launchGame(p, bid);
                 } else {
                     dealer.sendMessageTo(Translator.buildBidRequest(), dealer.getPlayerById(getNextPlayer(bid)));
                 }

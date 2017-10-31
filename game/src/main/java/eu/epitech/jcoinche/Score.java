@@ -27,7 +27,7 @@ public class Score {
         this.mTeam2 = second;
     }
 
-    private boolean isInTeamOne(Player.PlayerId id) {
+    public boolean isInTeamOne(Player.PlayerId id) {
         return (mTeam1.getPlayerOne() == id || mTeam1.getPlayerTwo() == id);
     }
 

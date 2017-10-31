@@ -52,6 +52,22 @@ public class Player {
             ctx.writeAndFlush(msg);
     }
 
+    public boolean hasBelotteEtRe(BaseCard.Color color) {
+        boolean kingOrQueen = false;
+
+        for (BaseCard c : mHand) {
+            if (c.getColor() == color &&
+                    (c.getRank() == BaseCard.Rank.KING ||
+                            c.getRank() == BaseCard.Rank.QUEEN)) {
+                if (!kingOrQueen)
+                    kingOrQueen = true;
+                else
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public String getBid() {
         return bid;
     }
