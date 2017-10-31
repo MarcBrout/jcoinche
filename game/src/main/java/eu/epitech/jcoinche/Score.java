@@ -2,6 +2,8 @@ package eu.epitech.jcoinche;
 
 import eu.epitech.jcoinche.CoincheProtocol.Bid;
 
+import javax.print.DocFlavor;
+
 public class Score {
     private Team mTeam1;
     private Team mTeam2;
@@ -40,18 +42,27 @@ public class Score {
         }
     }
 
+    private int checkBeAndRe(Team team) {
+        if (team.isHasBeAndRe())
+            return 20;
+        else
+            return 0;
+    }
+
     private void addingScore(Team team1, Team team2)
     {
+        if (team1.getCurrentScore() >= 81)
+            team1.updateScore(20);
         if (team1.getCurrentScore() >= bestBid.getAmount()) {
-            if (team1.getCurrentScore() == 162)
-                team1.updateScoreTotal((250 + bestBid.getAmount()) * mMult);
+            if (team1.getCurrentScore() >= 162)
+                team1.updateScoreTotal((250 + checkBeAndRe(team1) +  bestBid.getAmount()) * mMult);
             else {
-                team1.updateScoreTotal(Count.getRealScore((team1.getCurrentScore() + bestBid.getAmount()) * mMult));
-                team2.updateScoreTotal(Count.getRealScore(team2.getCurrentScore()));
+                team1.updateScoreTotal((Count.getRealScore(team1.getCurrentScore() - checkBeAndRe(team1)) + checkBeAndRe(team1) + bestBid.getAmount()) * mMult);
+                team2.updateScoreTotal(Count.getRealScore(team2.getCurrentScore()) + checkBeAndRe(team2));
             }
         }
         else {
-            team2.updateScoreTotal((160 + bestBid.getAmount()) * mMult);
+            team2.updateScoreTotal((160 + checkBeAndRe(team2) + bestBid.getAmount()) * mMult);
         }
     }
 

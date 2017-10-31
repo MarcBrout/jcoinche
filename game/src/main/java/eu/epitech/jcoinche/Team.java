@@ -4,9 +4,10 @@ public class Team {
 
     private int mScoreTot;
     private int mCurrentScore;
-    boolean mIsBidding;
-    Player.PlayerId mPlayerOne;
-    Player.PlayerId mPlayerTwo;
+    private boolean mIsBidding;
+    private boolean mHasBeAndRe;
+    private Player.PlayerId mPlayerOne;
+    private Player.PlayerId mPlayerTwo;
 
     public Team(Player.PlayerId play1, Player.PlayerId play2) {
         mCurrentScore = 0;
@@ -14,6 +15,7 @@ public class Team {
         mIsBidding = false;
         mPlayerOne = play1;
         mPlayerTwo = play2;
+        mHasBeAndRe = false;
     }
 
     Player.PlayerId getPlayerOne() {
@@ -24,7 +26,13 @@ public class Team {
         return mPlayerTwo;
     }
 
-    void teamHasBid() {
+    public void teamHasBeAndRe() { mHasBeAndRe = true;}
+
+    public boolean isHasBeAndRe() {
+        return mHasBeAndRe;
+    }
+
+    public void teamHasBid() {
         mIsBidding = true;
     }
 
@@ -36,12 +44,13 @@ public class Team {
         return mIsBidding;
     }
 
-    void reset() {
+    public void reset() {
         mCurrentScore = 0;
         mIsBidding = false;
+        mHasBeAndRe = false;
     }
 
-    void resetGame() {
+    public void resetGame() {
         reset();
         mScoreTot = 0;
     }
