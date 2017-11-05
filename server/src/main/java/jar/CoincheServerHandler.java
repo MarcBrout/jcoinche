@@ -216,7 +216,7 @@ public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
     }
 
     private Team returnWinningTeam() {
-        return team1.getCurrentScore() > team2.getCurrentScore() ? team1 : team2;
+        return (team1.isWinning()) ? team1 : team2;
     }
 
     private void checkCardPlayed(Card card, ChannelHandlerContext ctx) {
@@ -236,8 +236,9 @@ public class CoincheServerHandler extends SimpleChannelInboundHandler<Message> {
                     dealer.takeCard(table.giveCard());
                 table.clearTable();
                 if (endRound()) {
-                    dealer.sendMessageToEveryone(Translator.buildEndRound(returnWinningTeam(), dealer));
                     score.endRun();
+                    dealer.sendMessageToEveryone(Translator.buildEndRound(returnWinningTeam(), dealer));
+                    score.resetRun();
                     ++id;
                     if (endGame()) {
                         dealer.sendMessageToEveryone(Translator.buildEndGame(returnWinningTeam(), dealer));

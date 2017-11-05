@@ -15,6 +15,18 @@ public class BaseCard {
         BAD_RANK
     }
 
+    public enum TrumpRank {
+        SEVEN,
+        EIGHT,
+        QUEEN,
+        KING,
+        TEN,
+        AS,
+        NINE,
+        JACK,
+        BAD_RANK
+    }
+
     public enum Color {
         HEART,
         SPADE,
@@ -58,6 +70,15 @@ public class BaseCard {
         return rank;
     }
 
+    public TrumpRank getTrumpRank() {
+
+        for (TrumpRank rank : TrumpRank.values()) {
+            if (rank.name().equals(this.rank.name()))
+                return rank;
+        }
+        return TrumpRank.SEVEN;
+    }
+
     public boolean isLike(BaseCard c) {
         return (this.color == c.color &&
                 this.playerId == c.playerId &&
@@ -97,8 +118,13 @@ public class BaseCard {
 
     public int getValue() {
         if (trump)
-            return (trumpValues[rank.ordinal()]);
-        return (values[rank.ordinal()]);
+        {
+            for (TrumpRank rank : TrumpRank.values()) {
+                if (rank.name().equals(this.rank.name()))
+                    return (trumpValues[rank.ordinal()]);
+            }
+        }
+        return (values[this.rank.ordinal()]);
     }
 
     @Override

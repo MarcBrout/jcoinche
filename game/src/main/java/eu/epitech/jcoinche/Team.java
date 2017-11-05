@@ -4,18 +4,22 @@ public class Team {
 
     private int mScoreTot;
     private int mCurrentScore;
+    private int mCurClearScore;
     private boolean mIsBidding;
     private boolean mHasBeAndRe;
+    private boolean mHasWin;
     private Player.PlayerId mPlayerOne;
     private Player.PlayerId mPlayerTwo;
 
     public Team(Player.PlayerId play1, Player.PlayerId play2) {
         mCurrentScore = 0;
+        mCurClearScore = 0;
         mScoreTot = 0;
         mIsBidding = false;
         mPlayerOne = play1;
         mPlayerTwo = play2;
         mHasBeAndRe = false;
+        mHasWin = false;
     }
 
     Player.PlayerId getPlayerOne() {
@@ -44,10 +48,26 @@ public class Team {
         return mIsBidding;
     }
 
+    public void setCurClearScore(int score) {
+        mCurClearScore = score;
+    }
+
+    public int getCurClearScore() { return mCurClearScore; }
+
+    public boolean isWinning() {
+        return mHasWin;
+    }
+
+    public void won() {
+        mHasWin = true;
+    }
+
     public void reset() {
         mCurrentScore = 0;
+        mCurClearScore = 0;
         mIsBidding = false;
         mHasBeAndRe = false;
+        mHasWin = false;
     }
 
     public void resetGame() {
@@ -60,6 +80,7 @@ public class Team {
     }
 
     void updateScoreTotal(int score) {
+        setCurClearScore(score);
         mScoreTot += score;
     }
 

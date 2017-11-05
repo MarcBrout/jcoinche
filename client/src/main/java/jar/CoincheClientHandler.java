@@ -9,7 +9,6 @@ import org.pmw.tinylog.Logger;
 import java.util.Scanner;
 
 public class CoincheClientHandler extends SimpleChannelInboundHandler<Message> {
-
     private String mUserName;
     private Player mPlay;
     private Table table = new Table();

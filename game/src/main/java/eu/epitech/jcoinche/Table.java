@@ -150,14 +150,13 @@ public class Table {
     private BaseCard high()
     {
         BaseCard strong = null;
-        BaseCard.Rank rank = BaseCard.Rank.SEVEN;
+        BaseCard.TrumpRank rank = BaseCard.TrumpRank.SEVEN;
 
         for (BaseCard card : mCardPlayed)
         {
-            if (card.isTrump() && card.getRank().compareTo(rank) >= 0)
+            if (card.isTrump() && card.getTrumpRank().compareTo(rank) >= 0)
             {
-                Logger.info("Trump was found !!");
-                rank = card.getRank();
+                rank = card.getTrumpRank();
                 strong = card;
             }
         }
@@ -173,7 +172,6 @@ public class Table {
         {
             if (card.getColor() == color && card.getRank().compareTo(rank) >= 0)
             {
-                Logger.info("Card was found !!");
                 rank = card.getRank();
                 strong = card;
             }
@@ -185,10 +183,8 @@ public class Table {
     {
         if (mIsTurnTrump || mTrumpPlayed)
         {
-            Logger.info("Trump was played !!");
             return high();
         }
-        Logger.info("Trump was not !!");
         return high(mFirstColor);
     }
 
