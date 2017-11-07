@@ -84,7 +84,7 @@ public class Translator {
     }
 
     static public Message buildBid(String name, Player.PlayerId id, String bid, int amount, String color) {
-        ArrayList<String> call = new ArrayList<>() {{
+        ArrayList<String> call = new ArrayList<String>() {{
             add("Pass");
             add("Normal");
             add("Capot");
@@ -92,7 +92,7 @@ public class Translator {
             add("Coinche");
             add("Surcoinche");
         }};
-        ArrayList<String> col = new ArrayList<>() {{
+        ArrayList<String> col = new ArrayList<String>() {{
             add("H");
             add("S");
             add("C");
@@ -256,7 +256,7 @@ public class Translator {
                         .setEnd(End.newBuilder()
                                 .setNamePlay1(dealer.getPlayerName(winners.getPlayerOne()))
                                 .setNamePlay2(dealer.getPlayerName(winners.getPlayerTwo()))
-                                .setCurrentScore(winners.getCurrentScore())
+                                .setCurrentScore(winners.getCurClearScore())
                                 .build())
                         .build())
                 .build();

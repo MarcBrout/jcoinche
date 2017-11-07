@@ -54,6 +54,7 @@ public class Score {
         if (team1.getCurrentScore() >= 81)
             team1.updateScore(20);
         if (team1.getCurrentScore() >= bestBid.getAmount()) {
+            team1.won();
             if (team1.getCurrentScore() >= 162)
                 team1.updateScoreTotal((250 + checkBeAndRe(team1) +  bestBid.getAmount()) * mMult);
             else {
@@ -62,6 +63,7 @@ public class Score {
             }
         }
         else {
+            team2.won();
             team2.updateScoreTotal((160 + checkBeAndRe(team2) + bestBid.getAmount()) * mMult);
         }
     }
@@ -74,6 +76,9 @@ public class Score {
         else {
             addingScore(mTeam2, mTeam1);
         }
+    }
+
+    public void resetRun() {
         mTeam1.reset();
         mTeam2.reset();
         bestBid = null;
@@ -85,5 +90,6 @@ public class Score {
         mTeam1.resetGame();
         mTeam2.resetGame();
         bestBid = null;
+        mMult = 1;
     }
 }

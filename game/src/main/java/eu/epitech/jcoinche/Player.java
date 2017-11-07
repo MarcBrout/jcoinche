@@ -123,7 +123,6 @@ public class Player {
         int idx = 0;
         for (BaseCard inHand:
              mHand) {
-            Logger.info("HAND TO STRING {}", inHand);
             if (inHand.toString().equals(card)) {
                 mIdxCard = idx;
                 return ;
